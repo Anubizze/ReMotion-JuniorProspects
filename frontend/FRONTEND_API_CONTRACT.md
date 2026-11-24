@@ -1,54 +1,20 @@
-# ReMotion frontend API contract (draft)
+# ReMotion frontend ↔ backend contract
 
-This document describes the data required by the frontend. Endpoint names and transport are proposals for discussion and are not a final backend contract.
+The frontend uses `NEXT_PUBLIC_API_URL` (default `http://localhost:8000`). Set `NEXT_PUBLIC_DEMO_MODE=false` to use the NestJS API instead of local demo summaries. The backend enables CORS for `http://localhost:3000` by default.
 
-## Environment
+## Session lifecycle currently connected
 
-- `NEXT_PUBLIC_API_URL` — backend origin, default `http://localhost:8000`.
-- `NEXT_PUBLIC_DEMO_MODE` — when `true`, the UI does not present demo values as real analysis.
+1. `POST /api/sessions/start` with `{ "exercise_id": "elbow-extension" }` when the active session screen opens.
+2. `POST /api/sessions/{sessionId}/finish` with the elapsed duration when the user finishes. The session and summary are stored in the backend SQLite database.
+3. `GET /api/sessions/{sessionId}/results` to render the saved result.
+4. `GET /api/sessions/history` to render sessions from the backend.
+5. `POST /api/sessions/{sessionId}/analyze` when the user explicitly requests the AI technical assessment. This request uses `OPENAI_API_KEY` configured on the backend.
 
-## Session analysis
+`POST /api/sessions/{sessionId}/metrics` accepts `{ "repetitions": 2, "elbow_angle": 150, "phase": "extension", "confidence": 0.9 }`. The frontend does not call it yet because the current frontend branch has camera/video preview but no pose estimation or repetition detector.
 
-The frontend needs a streaming transport (WebSocket, SSE, or an agreed frame polling API) that can be represented by the `AnalysisTransport` interface in `src/lib/api/client.ts`.
+## Privacy and current limits
 
-Each pose frame should contain:
-
-```json
-{
-  "timestampMs": 1240,
-  "elbowAngle": 142.4,
-  "landmarks": [
-    {"name": "shoulder", "x": 0.42, "y": 0.31, "confidence": 0.98},
-    {"name": "elbow", "x": 0.51, "y": 0.52, "confidence": 0.96},
-    {"name": "wrist", "x": 0.68, "y": 0.49, "confidence": 0.95}
-  ]
-}
-```
-
-Coordinates are normalized to the displayed frame (`0..1`). The backend must state whether the source is mirrored so the frontend can align the overlay.
-
-Each completed cycle should contain a stable ID, start and end timestamps, classification (`complete`, `review`, or `unknown`), optional model confidence, and optional peak elbow angle. When confidence is below the agreed threshold, the backend should return `unknown`; the UI will show “Проверьте инструкцию” rather than an error judgment.
-
-## Final summary
-
-The frontend expects a `SessionSummary` with session ID, ISO date, duration in seconds, detected/completed/review cycle counts, individual cycles, and a source marker. No diagnosis, treatment efficacy, or therapy recommendation is accepted by this view.
-
-## Model metrics
-
-Provisional read request: `GET /model/metrics`.
-
-```json
-{
-  "balancedAccuracy": 0.0,
-  "f1Score": 0.0,
-  "confusionMatrix": [[0, 0], [0, 0]],
-  "baselineBalancedAccuracy": 0.0,
-  "splitDescription": "Grouped by volunteer ID"
-}
-```
-
-Values must come from the approved ML report or backend. Missing metrics remain unavailable in the UI.
-
-## Privacy and errors
-
-The frontend does not upload media in demo mode. If production analysis uploads frames or video, the product must display that fact before the user starts. Errors should contain a machine-readable code and a short safe message. The frontend handles permission denial, no camera, unsupported media, loading, empty data, low confidence, transport disconnect, and server errors as separate states.
+- The camera stream and selected video stay in the browser; media is not uploaded to the backend.
+- Sessions are saved even if no pose metrics were produced; their summary will show zero detected repetitions and unavailable angles.
+- AI analysis can return `InsufficientData` when no metrics are stored. It is a technical, non-medical result.
+- Model evaluation metrics are unavailable until a validated report and API endpoint are supplied; the UI does not substitute example scores.

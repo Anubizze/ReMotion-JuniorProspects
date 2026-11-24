@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
+import { Body, Controller, DefaultValuePipe, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateMetricDto } from './dto/create-metric.dto';
 import { FinishSessionDto } from './dto/finish-session.dto';
@@ -23,7 +23,7 @@ export class SessionsController {
 
   @Get('history') @ApiOperation({ summary: 'Получить историю сессий' })
   @ApiQuery({ name: 'limit', required: false, example: 20 })
-  history(@Query('limit', new ParseIntPipe({ optional: true })) limit?: number) { return this.service.history(Math.min(Math.max(limit ?? 20, 1), 100)); }
+  history(@Query('limit', new DefaultValuePipe('20'), ParseIntPipe) limit: number) { return this.service.history(Math.min(Math.max(limit, 1), 100)); }
 
   @Get(':sessionId/results') @ApiOperation({ summary: 'Получить результат и метрики сессии' })
   @ApiParam({ name: 'sessionId' })

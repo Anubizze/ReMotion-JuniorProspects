@@ -1,33 +1,25 @@
 # ReMotion frontend
 
-Next.js frontend for the ReMotion home rehabilitation prototype. The current implementation is frontend-only and keeps all demo analysis clearly labeled.
+Next.js frontend for the ReMotion home rehabilitation prototype. It connects to the NestJS backend for session lifecycle, saved results, history, and on-demand AI assessment.
 
 ## Run locally
 
-1. Copy `.env.example` to `.env.local`.
-2. Install dependencies with `npm install`.
-3. Start development mode with `npm run dev`.
-4. Open `http://localhost:3000`; the default locale is Russian. Kazakh is available from the header switch.
+1. Start the backend first, following the repository root README.
+2. Copy `.env.example` to `.env.local`.
+3. Install packages with `npm ci` and start with `npm run dev`.
+4. Open `http://localhost:3000/ru`; Kazakh is available at `/kk`.
 
-Production checks:
-
-```bash
-npm run typecheck
-npm run lint
-npm run build
-```
+`NEXT_PUBLIC_API_URL` sets the backend origin. Set `NEXT_PUBLIC_DEMO_MODE=true` to show the explicitly labeled local demo UI. The checked-in environment example enables backend mode.
 
 ## Routes
 
 - `/ru` and `/kk` — home.
-- `/[locale]/session/prepare` — camera or video setup.
-- `/[locale]/session/active` — active session surface and backend-ready analysis states.
-- `/[locale]/session/results` — explicitly labeled demo summary and chart.
-- `/[locale]/history` — local summary history.
-- `/[locale]/technology` — ML integration scheme and metric availability.
+- `/[locale]/session/prepare` — camera or local video setup.
+- `/[locale]/session/active` — session playback, timer, and backend session creation/finish.
+- `/[locale]/session/results` — stored result and optional AI assessment.
+- `/[locale]/history` — session history from the backend.
+- `/[locale]/technology` — ML integration notes and available model metrics.
 
-## Data and privacy
+## Current limits
 
-Camera access starts only after a user action. The app stops media tracks when a session ends or a media source is replaced. Uploaded video uses a browser object URL and is not automatically saved. Session summaries are saved only after the user presses the save button and remain in `localStorage` on that browser.
-
-The provisional integration data is documented in `FRONTEND_API_CONTRACT.md`. API paths and transport must be agreed with the backend developer before production integration.
+Camera video and selected files remain in the browser. Pose estimation and repetition counting are not implemented in this frontend yet, so current backend sessions contain duration but no movement metrics. See `FRONTEND_API_CONTRACT.md` for the API schema and integration status.

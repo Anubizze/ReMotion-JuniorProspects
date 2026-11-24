@@ -5,6 +5,7 @@ import {useTranslations} from "next-intl";
 import {DragEvent, ChangeEvent, useEffect, useRef, useState} from "react";
 import {useRouter} from "@/i18n/navigation";
 import {setCameraStream, setVideoFile, stopMedia} from "@/lib/media-session";
+import {clearActiveSessionId} from "@/lib/api/client";
 
 type Mode = "camera" | "upload";
 type CameraError = "denied" | "missing" | "unsupported" | null;
@@ -63,6 +64,6 @@ export function CameraSetup() {
         </> : <><div className={`dropZone ${dragging ? "dragging" : ""}`} onDragOver={(event) => {event.preventDefault(); setDragging(true);}} onDragLeave={() => setDragging(false)} onDrop={handleDrop}>{videoUrl ? <><video ref={videoRef} controls playsInline/><button className="btn btnSecondary" onClick={() => inputRef.current?.click()}>{t("replace")}</button></> : <><UploadCloud size={48}/><h3>{t("drop")}</h3><p className="muted">{t("uploadText")}</p><button className="btn btnPrimary" onClick={() => inputRef.current?.click()}><FileVideo size={19}/>{t("choose")}</button></>}<input className="fileInput" ref={inputRef} type="file" accept="video/mp4,video/webm,video/quicktime" onChange={handleFile}/></div>{fileError && <p className="errorText" role="alert">{t("invalidFile")}</p>}</>}
       </section>
     </div>
-    <section className="readyBar card"><div className="readyText"><span className="statusIcon">{ready ? <CheckCircle2/> : <VideoOff/>}</span><div><h3>{ready ? t("ready") : t("notReady")}</h3><p className="muted">{t("serverNotice")}</p></div></div><button className="btn btnPrimary" disabled={!ready} onClick={() => {transferringRef.current = true; router.push("/session/active");}}>{t("begin")}<PlayCircle size={20}/></button></section>
+    <section className="readyBar card"><div className="readyText"><span className="statusIcon">{ready ? <CheckCircle2/> : <VideoOff/>}</span><div><h3>{ready ? t("ready") : t("notReady")}</h3><p className="muted">{t("serverNotice")}</p></div></div><button className="btn btnPrimary" disabled={!ready} onClick={() => {clearActiveSessionId(); transferringRef.current = true; router.push("/session/active");}}>{t("begin")}<PlayCircle size={20}/></button></section>
   </>;
 }

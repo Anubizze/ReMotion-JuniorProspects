@@ -50,6 +50,10 @@ p { margin: 0; }
 .eyebrow, .badge { display: inline-flex; align-items: center; gap: 8px; width: fit-content; color: var(--primary); background: var(--soft); border-radius: 999px; padding: 7px 12px; font-size: 13px; font-weight: 600; letter-spacing: .02em; }
 .eyebrow::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 .demoBanner { display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; border-radius: 14px; background: #fff7ed; border: 1px solid #f2dbc6; color: #7a431b; font-size: 14px; margin-bottom: 24px; }
+.apiBanner { display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; border-radius: 14px; background: #edf8f5; border: 1px solid #cce9df; color: #275b4b; font-size: 14px; margin-bottom: 24px; }
+.apiBanner strong { display: block; color: #174936; }
+.apiStatusDot { width: 9px; height: 9px; flex: 0 0 9px; margin-top: 5px; border-radius: 50%; background: #279d78; }
+.apiStatusDot.error { background: #c45a4f; }
 .demoBanner strong { display: block; color: #693815; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadow); }
 .btn { min-height: 50px; border: 1px solid transparent; border-radius: 999px; padding: 12px 22px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; font-weight: 600; transition: .2s ease; }
