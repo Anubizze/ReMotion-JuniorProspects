@@ -5,3 +5,9 @@ backend/seriq.sqlite
 backend/seriq.sqlite-shm
 backend/seriq.sqlite-wal
 backend/.env
+ml/.venv/
+ml/models/*.task
+ml/artifacts/
+ml/__pycache__/
+/5726683-uhd_4096_2160_25fps.mp4
+/An upper limb stroke rehabilitation exercise video/

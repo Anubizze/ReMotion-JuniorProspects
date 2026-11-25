@@ -1,0 +1,33 @@
+{
+  "trainVideos": 107,
+  "trainParticipants": 5,
+  "trainGroupedBalancedAccuracy": 0.6747368421052632,
+  "trainGroupedF1": 0.6222222222222222,
+  "testVideos": 20,
+  "testParticipants": 1,
+  "modelName": "extra-trees-depth2-leaf2",
+  "modelBalancedAccuracy": 0.30000000000000004,
+  "modelF1": 0.36363636363636365,
+  "modelConfusionMatrix": [
+    [
+      2,
+      8
+    ],
+    [
+      6,
+      4
+    ]
+  ],
+  "baselineBalancedAccuracy": 0.45,
+  "baselineF1": 0.6206896551724138,
+  "baselineConfusionMatrix": [
+    [
+      0,
+      10
+    ],
+    [
+      1,
+      9
+    ]
+  ]
+}

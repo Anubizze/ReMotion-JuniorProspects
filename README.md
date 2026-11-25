@@ -30,7 +30,12 @@ Open `http://localhost:3000/ru` (Kazakh is available at `/kk`). The frontend con
 
 ## Current integration limits
 
-- Sessions, duration, results, and history are stored by the backend.
-- Camera and uploaded video stay in the browser. The current frontend does not yet run pose estimation or count repetitions, so it sends zero repetitions and no angles. Session analysis will return `InsufficientData` until pose metrics are produced and posted.
+- Sessions, duration, results, and history are stored by the backend. In connected mode the frontend also sends elbow-angle, phase, pose-confidence, and repetition metrics.
+- Camera and uploaded video stay in the browser. MediaPipe Pose Landmarker tracks the elbow angle locally; the live repetition counter uses fixed angle thresholds.
+- The `Complete` / `Incomplete` sequence classifier is not yet connected to the live session flow. See [ml/README.md](ml/README.md) for the dataset training and held-out evaluation pipeline.
 - AI assessment uses saved motion metrics only. It is a technical prototype, not a medical assessment or validated classifier.
-- See [frontend API contract](frontend/FRONTEND_API_CONTRACT.md) for the connected endpoints and remaining pose-estimation work.
+- See [frontend API contract](frontend/FRONTEND_API_CONTRACT.md) for the connected endpoints and remaining integration work.
+
+## E02 dataset evaluation
+
+The supplied `An upper limb stroke rehabilitation exercise video` dataset can be used to evaluate the elbow-extension exercise. Setup and reproducible training/evaluation commands are in [ml/README.md](ml/README.md). The report compares the angle-threshold cycle baseline with a sequence-based classifier on the dataset's held-out `Test` videos.

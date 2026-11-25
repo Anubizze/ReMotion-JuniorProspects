@@ -22,4 +22,4 @@ Next.js frontend for the ReMotion home rehabilitation prototype. It connects to 
 
 ## Current limits
 
-Camera video and selected files remain in the browser. Pose estimation and repetition counting are not implemented in this frontend yet, so current backend sessions contain duration but no movement metrics. See `FRONTEND_API_CONTRACT.md` for the API schema and integration status.
+Camera video and selected files remain in the browser. MediaPipe Pose Landmarker estimates the elbow angle locally, and the current counter detects cycles with fixed flexion/extension thresholds. The trained `Complete` / `Incomplete` sequence classifier has not yet been connected to live sessions. See `FRONTEND_API_CONTRACT.md` for the API schema and integration status.

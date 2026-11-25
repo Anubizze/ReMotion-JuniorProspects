@@ -85,6 +85,12 @@ export async function finishSession(sessionId: string, values: {repetitions: num
   });
 }
 
+export async function saveSessionMetric(sessionId: string, values: {repetitions: number; elbow_angle: number | null; phase: string; confidence: number}) {
+  return request(`/api/sessions/${encodeURIComponent(sessionId)}/metrics`, metricSchema.extend({id: z.string(), session_id: z.string()}), {
+    method: "POST", body: JSON.stringify(values)
+  });
+}
+
 export async function getSessionResults(sessionId: string) {
   return request(`/api/sessions/${encodeURIComponent(sessionId)}/results`, sessionResultSchema);
 }

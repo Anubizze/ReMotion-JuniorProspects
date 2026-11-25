@@ -6,6 +6,7 @@ import {DragEvent, ChangeEvent, useEffect, useRef, useState} from "react";
 import {useRouter} from "@/i18n/navigation";
 import {setCameraStream, setVideoFile, stopMedia} from "@/lib/media-session";
 import {clearActiveSessionId} from "@/lib/api/client";
+import {usePoseDetection} from "@/lib/pose-detection";
 
 type Mode = "camera" | "upload";
 type CameraError = "denied" | "missing" | "unsupported" | null;
@@ -14,6 +15,7 @@ export function CameraSetup() {
   const t = useTranslations("prepare");
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const transferringRef = useRef(false);
   const [mode, setMode] = useState<Mode>("camera");
@@ -24,6 +26,7 @@ export function CameraSetup() {
   const [error, setError] = useState<CameraError>(null);
   const [fileError, setFileError] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const pose = usePoseDetection(videoRef, canvasRef, Boolean(stream));
 
   useEffect(() => { if (videoRef.current && stream) { videoRef.current.srcObject = stream; void videoRef.current.play(); } }, [stream]);
   useEffect(() => { if (videoRef.current && videoUrl) { videoRef.current.srcObject = null; videoRef.current.src = videoUrl; } }, [videoUrl]);
@@ -56,9 +59,9 @@ export function CameraSetup() {
 
   return <>
     <div className="prepareGrid">
-      <section className="panel card"><div className="panelTitle"><PlayCircle size={24}/><h2>{t("instruction")}</h2></div><div className="instructionPlaceholder"><div><VideoOff size={48}/><p>{t("instructionUnavailable")}</p></div></div></section>
+      <section className="panel card"><div className="panelTitle"><PlayCircle size={24}/><h2>{t("instruction")}</h2></div><div className="referenceStage"><video src="/videos/e02-complete-example.mp4" autoPlay muted loop controls playsInline preload="metadata"/><span className="referenceBadge">{t("referenceComplete")}</span></div><p className="referenceCaption">{t("referenceNote")}</p></section>
       <section className="panel card"><div className="panelTitle"><Camera size={24}/><h2>{t("modeTitle")}</h2></div><div className="modeTabs"><button className={mode === "camera" ? "active" : ""} onClick={() => changeMode("camera")}>{t("camera")}</button><button className={mode === "upload" ? "active" : ""} onClick={() => changeMode("upload")}>{t("upload")}</button></div>
-        {mode === "camera" ? <><div className="mediaWell">{stream ? <><video ref={videoRef} muted playsInline/><div className="mediaStatus"><span><CheckCircle2 size={17}/> {t("cameraReady")}</span><span>{t("serverNotice")}</span></div></> : <div className="mediaEmpty"><Camera size={46}/><h3>{t("cameraText")}</h3><button className="btn btnPrimary" onClick={() => void startCamera()}>{error ? t("retryCamera") : t("allowCamera")}</button></div>}</div>
+        {mode === "camera" ? <><div className="mediaWell">{stream ? <><video ref={videoRef} muted playsInline/><canvas ref={canvasRef} className="poseCanvas" aria-hidden="true"/><div className="posePreviewStatus" role="status">{pose.modelState === "loading" ? t("poseLoading") : pose.modelState === "error" ? t("poseError") : pose.angle === null ? t("poseWaiting") : `${t("poseDetected")} · ${pose.angle}°`}</div><div className="mediaStatus"><span><CheckCircle2 size={17}/> {t("cameraReady")}</span><span>{t("serverNotice")}</span></div></> : <div className="mediaEmpty"><Camera size={46}/><h3>{t("cameraText")}</h3><button className="btn btnPrimary" onClick={() => void startCamera()}>{error ? t("retryCamera") : t("allowCamera")}</button></div>}</div>
           {devices.length > 1 && <div className="selectRow"><label htmlFor="camera-select">{t("selectCamera")}</label><select id="camera-select" value={deviceId} onChange={(event) => { setDeviceId(event.target.value); void startCamera(event.target.value); }}>{devices.map((item, index) => <option key={item.deviceId} value={item.deviceId}>{item.label || `${t("camera")} ${index + 1}`}</option>)}</select></div>}
           {error && <p className="errorText" role="alert">{t(error === "denied" ? "cameraDenied" : error === "missing" ? "cameraMissing" : "cameraUnsupported")}</p>}
         </> : <><div className={`dropZone ${dragging ? "dragging" : ""}`} onDragOver={(event) => {event.preventDefault(); setDragging(true);}} onDragLeave={() => setDragging(false)} onDrop={handleDrop}>{videoUrl ? <><video ref={videoRef} controls playsInline/><button className="btn btnSecondary" onClick={() => inputRef.current?.click()}>{t("replace")}</button></> : <><UploadCloud size={48}/><h3>{t("drop")}</h3><p className="muted">{t("uploadText")}</p><button className="btn btnPrimary" onClick={() => inputRef.current?.click()}><FileVideo size={19}/>{t("choose")}</button></>}<input className="fileInput" ref={inputRef} type="file" accept="video/mp4,video/webm,video/quicktime" onChange={handleFile}/></div>{fileError && <p className="errorText" role="alert">{t("invalidFile")}</p>}</>}
